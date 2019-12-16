@@ -122,7 +122,7 @@ func renderRows(sheet *xlsx.Sheet, rows []*xlsx.Row, ctx map[string]interface{},
 			}
 
 			for idx := range rangeCtx {
-				localCtx := mergeCtx(rangeCtx[idx], ctx)
+				localCtx := mergeCtx(rangeCtx[idx].(map[string]interface{}), ctx)
 				err := renderRows(sheet, rows[ri:rangeEndIndex], localCtx, options)
 				if err != nil {
 					return err
@@ -241,14 +241,14 @@ func getCtx(in interface{}, i int) map[string]interface{} {
 	return nil
 }
 
-func getRangeCtx(ctx map[string]interface{}, prop string) []map[string]interface{} {
+func getRangeCtx(ctx map[string]interface{}, prop string) []interface{} {
 	val, ok := ctx[prop]
 	if !ok {
 		return nil
 	}
 
-	if propCtx, ok := val.([]map[string]interface{}); ok {
-		return propCtx
+	if valCtx, ok := val.([]interface{}); ok {
+		return valCtx
 	}
 
 	return nil
