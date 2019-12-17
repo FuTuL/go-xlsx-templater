@@ -34,17 +34,6 @@ func New() *Xlst {
 	return &Xlst{}
 }
 
-// NewFromBinary creates new Xlst struct puts binary tempate into and returns pointer to it
-func NewFromBinary(content []byte) (*Xlst, error) {
-	file, err := xlsx.OpenBinary(content)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &Xlst{file: file}
-	return res, nil
-}
-
 // Render renders report and stores it in a struct
 func (m *Xlst) Render(in interface{}) error {
 	return m.RenderWithOptions(in, nil)
@@ -58,10 +47,13 @@ func (m *Xlst) RenderWithOptions(in interface{}, options *Options) error {
 	report := xlsx.NewFile()
 	for si, sheet := range m.file.Sheets {
 		ctx := getCtx(in, si)
-		report.AddSheet(sheet.Name)
+		_, err := report.AddSheet(sheet.Name)
+		if err != nil {
+			return err
+		}
 		cloneSheet(sheet, report.Sheets[si])
 
-		err := renderRows(report.Sheets[si], sheet.Rows, ctx, options)
+		err = renderRows(report.Sheets[si], sheet.Rows, ctx, options)
 		if err != nil {
 			return err
 		}
@@ -76,8 +68,28 @@ func (m *Xlst) RenderWithOptions(in interface{}, options *Options) error {
 }
 
 // ReadTemplate reads template from disk and stores it in a struct
-func (m *Xlst) ReadTemplate(path string) error {
+func (m *Xlst) OpenFileTemplate(path string) error {
 	file, err := xlsx.OpenFile(path)
+	if err != nil {
+		return err
+	}
+	m.file = file
+	return nil
+}
+
+// OpenBinaryTemplate reads template from []byte and stores it in a struct
+func (m *Xlst) OpenBinaryTemplate(content []byte) error {
+	file, err := xlsx.OpenBinary(content)
+	if err != nil {
+		return err
+	}
+	m.file = file
+	return nil
+}
+
+// ReadTemplate reads template from reader and stores it in a struct
+func (m *Xlst) OpenReaderAtTemplate(r io.ReaderAt, size int64) error {
+	file, err := xlsx.OpenReaderAt(r, size)
 	if err != nil {
 		return err
 	}
