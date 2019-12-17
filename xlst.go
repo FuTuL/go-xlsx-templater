@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	rgx         = regexp.MustCompile(`\{\{\s*(\w+)\.\w+\s*\}\}`)
-	rangeRgx    = regexp.MustCompile(`\{\{\s*range\s+(\w+)\s*\}\}`)
-	rangeEndRgx = regexp.MustCompile(`\{\{\s*end\s*\}\}`)
+	rgx         = regexp.MustCompile(`{{\s*(\w+)\.\w+\s*}}`)
+	rangeRgx    = regexp.MustCompile(`{{\s*range\s+(\w+)\s*}}`)
+	rangeEndRgx = regexp.MustCompile(`{{\s*end\s*}}`)
 )
 
 // Xlst Represents template struct
